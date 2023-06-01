@@ -330,9 +330,7 @@ while ($true) {
                 }
             }
 
-            # Set the window as the active window
-            $windowHandle = (get-process powershell_ise).MainWindowHandle
-            [Win32]::SetForegroundWindow($windowHandle)
+           
         }
     } 
     elseif ($block_num -eq 4) {

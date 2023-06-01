@@ -38,7 +38,7 @@ while ($true) {
     1: First Page
     2: Tyre
     3: Extra
-    4: Gyári Extra
+    4: Extra total check
     5: NGM
     6: column chooser
     q: Quit"
@@ -281,6 +281,7 @@ while ($true) {
             #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(261, 242);
             Set-CursorPosition -X 261 -Y 242
             [int]$j = 0
+            [int]$lineCounter = 0
             for ($i = 0; $i -lt $Extraar.Length; $i++) {
                 if ($Extraar[$i] -ne "" -or $Extraar[$i] -eq "0") 
                 {
@@ -304,6 +305,7 @@ while ($true) {
                     [System.Windows.Forms.SendKeys]::SendWait("^v")
                     Start-Sleep -Milliseconds 100
                     $j += 20
+                    $lineCounter++
                 } 
                 else {
                     break
@@ -330,14 +332,16 @@ while ($true) {
                 }
             }
 
-            # Set the window as the active window
-            $windowHandle = (get-process powershell_ise).MainWindowHandle
-            [Win32]::SetForegroundWindow($windowHandle)
+            
         }
-    } 
-    elseif ($block_num -eq 4) {
-        #Gyári Extra
-        [int]$o = Read-Host "Which column?"
+     
+        Set-CursorPosition -X 968 -Y 565
+        while ($lineCounter -gt 0) {
+            
+            Start-Sleep -Milliseconds 50
+            [W.U32]::mouse_event(6, 0, 0, 0, 0);
+            $lineCounter--
+        }
 
         [String[]]$Extra = Import-Excel -Path "$excelFile" -WorksheetName "AJANLAT_brutto" -ImportColumns @(1) -StartRow 76 -EndRow 146 -NoHeader
         $Extra = $Extra.replace("@", "").replace("{", "").replace("P1", "").replace("=", "").replace("}", "")
@@ -428,11 +432,9 @@ while ($true) {
 
         Set-Clipboard $asd
 
-        # Set the window as the active window
-        $windowHandle = (get-process powershell_ise).MainWindowHandle
-        [Win32]::SetForegroundWindow($windowHandle)
+        
     }
-    elseif ($block_num -eq 5) {
+    elseif ($block_num -eq 4) {
         [String[]]$excelTotalExtra = Import-Excel -Path $excelFile -WorksheetName "AJANLAT_netto" -ImportColumns @($o) -StartRow 33 -EndRow 33 -NoHeader
         $excelTotalExtra = $excelTotalExtra.replace("@", "").replace("{", "").replace("P1", "").replace("=", "").replace("}", "")
         [double[]]$excelTotalExtra = $excelTotalExtra
@@ -469,13 +471,22 @@ while ($true) {
         }
         
         $totalExtra = $totalExtra / 100
-        if ($totalExtra -ge $excelTotalExtra[0] - 10 -and $totalExtra -le $excelTotalExtra[0] + 10) {
-            #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(955, 669);
+        if ($totalExtra -ge $excelTotalExtra[0] - 10 -and $totalExtra -le $excelTotalExtra[0] + 10) 
+        {  
+            Write-Host "Total of extras MATCH"
+        }
+        else {
+            Write-Host "Total of extras DOES NOT MATCH"
+        }
+    }
+    elseif ($block_num -eq 5) {
+        
+            
             Set-CursorPosition -X 955 -Y 669
             Start-Sleep -Seconds 1
             [W.U32]::mouse_event(6, 0, 0, 0, 0);
             Start-Sleep -Seconds 2
-            #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(1387, 834);
+            
             Set-CursorPosition -X 1387 -Y 834
             [W.U32]::mouse_event(6, 0, 0, 0, 0);
             Start-Sleep -Seconds 2
@@ -531,4 +542,4 @@ while ($true) {
 
     # Update the last_block variable
     $last_block = $block_num
-}
+

@@ -474,6 +474,8 @@ while ($true) {
         if ($totalExtra -ge $excelTotalExtra[0] - 10 -and $totalExtra -le $excelTotalExtra[0] + 10) 
         {  
             Write-Host "Total of extras MATCH"
+            $windowHandle = (get-process powershell_ise).MainWindowHandle
+            [Win32]::SetForegroundWindow($windowHandle)
         }
         else {
             Write-Host "Total of extras DOES NOT MATCH"
@@ -525,11 +527,6 @@ while ($true) {
             catch {
                 Write-Host "Invalid NGM, exiting"
             }
-        }
-        else {
-            Write-Host "Total of extras does not match!"
-            Write-Host ""
-            Start-Sleep -Seconds 1
         }
         
 

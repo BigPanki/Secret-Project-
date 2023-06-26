@@ -42,7 +42,7 @@ function Paste-Extra
 }
 
 while ($true) {
-    Write-Host "Please enter a block of code to execute (0-5) or 'q' to quit:
+    Write-Host "Please enter a block of code to execute (0-6) or 'q' to quit:
     0: Open excel file
     1: First Page
     2: Tyre
@@ -160,17 +160,15 @@ while ($true) {
         [Win32]::SetForegroundWindow($windowHandle)
     } 
     elseif ($block_num -eq 2) {
-        
-
-        
-        
-       
+        #Tyre sorting.
+        #Todo: make it take the value from excel instead of relying on user input.        
         $data = Import-Excel -Path "\\HU-BUDFNP02\Operativ_Shared\Sales részére\Missing Tyre\Gumiméret segédtábla_20220812.xlsx" -WorksheetName "Summer"
-    
+        #cleans the data, so that it can be used to search the excel sheets.
         [String[]]$dimension = Import-Excel -Path $excelFile -WorksheetName "AJANLAT_netto" -ImportColumns @($o) -StartRow 26 -EndRow 26 -NoHeader
         $dimension = $dimension.replace("@", "").replace("{", "").replace("P1", "").replace("=", "").replace("}", "")
         $dimension = $dimension -replace '\s+|-|/', ''
         $dimension = $dimension -replace "[^\s0-9rR]"
+        #This is for 
         if ($dimension[0].Length -gt 8)
          {
             $1 = [int]$dimension[0].Substring(0, 5)
@@ -253,9 +251,11 @@ while ($true) {
     } 
 
     elseif ($block_num -eq 3) {
-        #Utólag beszerelt
-        #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(950,664);
-        if ($quit -ne 'q') {
+        #Aftermarket Extras
+        
+        if ($quit -ne 'q') 
+        #Imports Aftermarket Extras
+        {
             [int]$o = Read-Host "Which column?"
             [String[]]$Extra = Import-Excel -Path "$excelFile" -WorksheetName "AJANLAT_netto" -ImportColumns @(1) -StartRow 58 -EndRow 76 -NoHeader
             $Extra = $Extra.replace("@", "").replace("{", "").replace("P1", "").replace("=", "").replace("}", "")
@@ -263,7 +263,7 @@ while ($true) {
             $Extraar = $Extraar.replace("@", "").replace("{", "").replace("P1", "").replace("=", "").replace("}", "")
             [int[]]$Extraar = $Extraar
 
-            #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(261, 242);
+            
             Set-CursorPosition -X 261 -Y 242
             [int]$j = 0
             [int]$lineCounter = 0
@@ -296,7 +296,7 @@ while ($true) {
                 if ($Extraar[$i] -ne "") {
                     Set-Clipboard $Extraar[$i]
                     Start-Sleep -Milliseconds 100
-                    #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(565,(242+$j));
+                    
                     Set-CursorPosition -X 565 -Y (242 + $j)
                     Start-Sleep -Milliseconds 75
                     Paste-Extra
@@ -318,7 +318,8 @@ while ($true) {
             [W.U32]::mouse_event(6, 0, 0, 0, 0);
             $lineCounter--
         }
-
+        
+        #Imports factory extras
         [String[]]$Extra = Import-Excel -Path "$excelFile" -WorksheetName "AJANLAT_brutto" -ImportColumns @(1) -StartRow 76 -EndRow 146 -NoHeader
         $Extra = $Extra.replace("@", "").replace("{", "").replace("P1", "").replace("=", "").replace("}", "")
 
@@ -329,7 +330,7 @@ while ($true) {
         [int]$k = 0
         [int]$l = 0
         
-        
+        #Loops through the lists and checks wheter an extra has to be pasted or not and pastes in the name of it.
         for ($i = 0; $i -lt $Extraar.Length; $i++) {
             if ($Extraar[$i] -ne "" -or $Extraar[$i] -eq "0") {
                 Set-Clipboard $Extra[$i]
@@ -339,6 +340,7 @@ while ($true) {
                 Paste-Extra
                 $j += 20
                 $k++
+                #If there are more than 17 extras this scrolls down so that the loop keeps going.
                 if ($k % 17 -eq 0) {
                     $j = 0
                     $l++
@@ -352,6 +354,8 @@ while ($true) {
             }
                 
         }
+        #This scrolls up for the prices to be pasted.
+        #Todo: if there are more than 34 extras, make it possible to paste all of them.
         if ($l -gt 0) {
             Set-CursorPosition -X 968 -Y 220
             for ($x = 0; $x -lt 17; $x++) {
@@ -360,6 +364,7 @@ while ($true) {
             }
             
         }
+        #Loops through the lists and checks wheter an extra has to be pasted or not and pastes in the name of it.
         [int]$j = 0
         [int]$k = 0
         for ($i = 0; $i -lt $Extraar.Length; $i++) {
@@ -367,7 +372,6 @@ while ($true) {
                 $roundedExtra = [math]::Round($Extraar[$i], 0)
                 Set-Clipboard $roundedExtra
                 Start-Sleep -Milliseconds 100
-                #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(565,(242+$j));
                 Set-CursorPosition -X 565 -Y (242 + $j)
                 Start-Sleep -Milliseconds 100
                 Paste-Extra
@@ -375,7 +379,6 @@ while ($true) {
                 $k++
                 if ($k % 17 -eq 0) {
                     $j = 0
-                    #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(968,565);
                     Set-CursorPosition -X 968 -Y 565
                     for ($x = 0; $x -lt 17; $x++) {
                         Start-Sleep -Milliseconds 50
@@ -385,9 +388,10 @@ while ($true) {
             }
                 
         }
-            
+        #This scrolls up for the prices to be pasted.
+        #this could use the same as above, but it works and I don't want to brake it.
         if ($k % 16 -eq 0) {
-            #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(968,220);
+           
             Set-CursorPosition -X 968 -Y 220
             for ($i = 2; $i -le $k; $i++) {
                 Start-Sleep -Milliseconds 50
@@ -401,23 +405,16 @@ while ($true) {
         
     }
 
-    elseif ($block_num -eq 4) {
+    elseif ($block_num -eq 4) 
+    #Import total extra value
+    {
         [String[]]$excelTotalExtra = Import-Excel -Path $excelFile -WorksheetName "AJANLAT_netto" -ImportColumns @($o) -StartRow 33 -EndRow 33 -NoHeader
         $excelTotalExtra = $excelTotalExtra.replace("@", "").replace("{", "").replace("P1", "").replace("=", "").replace("}", "")
         [double[]]$excelTotalExtra = $excelTotalExtra
-        #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(628, 618);
-        #Extras OK button
-        Set-CursorPosition -X 955 -Y 669
-            Start-Sleep -Milliseconds 100
-            Click
+        
+       
             
-            Start-Sleep -Milliseconds 100
-            $windowHandle = (get-process powershell_ise).MainWindowHandle
-            [Win32]::SetForegroundWindow($windowHandle)
-            Start-sleep -Milliseconds 100
-            Read-Host 'Press enter to continue.'
-            
-            
+        #Gets total extras value    
         Set-CursorPosition -X 628 -Y 618
             Start-Sleep -Milliseconds 100
             Click
@@ -445,49 +442,39 @@ while ($true) {
             [Win32]::SetForegroundWindow($windowHandle)
         }
         else {
-            Write-Host "Total of extras DOES NOT MATCH"
+            Write-Host "Total of extras DO NOT MATCH"
         }
     }
-
+    #NGM calculation
     elseif ($block_num -eq 5) 
     {
         
             
-         Set-CursorPosition -X 955 -Y 669
-         Start-Sleep -Seconds 1
-        Click
-        Start-Sleep -Seconds 2
         
-        Set-CursorPosition -X 1387 -Y 834
-        Click
-        Start-Sleep -Seconds 2
 
         $windowHandle = (get-process powershell_ise).MainWindowHandle
         [Win32]::SetForegroundWindow($windowHandle)
        try 
         {
-            #NGM számítás
+            #Desired NGM
             [double]$userNGM = Read-Host("What NGM do you want?")
             
     
-            #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(252, 238);
+            
             Set-CursorPosition -X 252 -Y 238
             Start-Sleep -Milliseconds 100
-            Click
-            
+            Click           
             Start-Sleep -Milliseconds 300
             Click
             Start-Sleep -Milliseconds 300
-
             [System.Windows.Forms.SendKeys]::SendWait("^c")
-            Start-Sleep -Milliseconds 300
-                
+            Start-Sleep -Milliseconds 300   
             [double]$NGM = [Windows.Forms.Clipboard]::GetText();
             $NGM = $NGM / 100
             $NGM = - $NGM + $userNGM
             Set-Clipboard $NGM
             Start-Sleep -Milliseconds 100
-            #[System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(252, 324);
+
             Set-CursorPosition -X 252 -Y 324
             Click
             Start-Sleep -Milliseconds 100
@@ -501,7 +488,7 @@ while ($true) {
     }
         
 
-    
+    #Column chooser
     elseif ($block_num -eq 6) 
     {
         [int]$o = Read-Host "Which Column?"
